@@ -1,5 +1,3 @@
-/* Style pour le conteneur des messages /
-
 #messages {
 margin: 0 auto;
 width: 60%;
@@ -10,20 +8,18 @@ border: 1px solid #ccc;
 border-radius: 25px;
 padding: 10px;
 background-color: #f9f9f9;
-overflow-y: auto; / Pour activer le défilement vertical si nécessaire */
+overflow-y: auto;
 }
 
-/\ *Style pour chaque message* /
 #messages p {
 margin: 5px 0;
 }
 
-/\ *Style pour le formulaire d'envoi de message* /
 #messageForm {
 margin-top: 20px;
 }
 
-/\ *Style pour les champs de formulaire* /
+
 #messageForm input[type="text"],
 #messageForm button {
 padding: 10px;
@@ -39,7 +35,7 @@ height: 500px;
 
 }
 
-/\ *Style pour le bouton d'envoi* /
+
 #sendBtn {
 background-color: #000fff;
 color: #fff;
@@ -50,7 +46,7 @@ height: 30px;
 border-radius: 25px;
 }
 
-/\ *Style pour les boutons lorsqu'ils sont survolés* /
+
 #sendBtn:hover {
 background-color: #0056b3;
 }
