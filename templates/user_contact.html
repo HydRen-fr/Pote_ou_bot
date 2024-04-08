@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Contact's Username</title>
+</head>
+<body>
+    <h1>Enter Contact's Username</h1>
+    <form action="/chat" method="post">
+        <input type="hidden" name="username" value="{{ username }}">
+        <input type="text" name="contact_username" placeholder="Contact's Username" required>
+        <button type="submit">Start Chat</button>
+    </form>
+</body>
+</html>
