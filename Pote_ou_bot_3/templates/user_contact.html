@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacter un utilisateur</title>
+</head>
+<body>
+    <h1>Entrez le nom d'utilisateur de la personne avec qui vous voulez discuter</h1>
+    <form action="/chat" method="post">
+        <input type="hidden" name="username" value="{{ username }}">
+        <input type="text" name="contact_username" placeholder="Nom d'utilisateur du contact" required>
+        <button type="submit">Commencer la discussion</button>
+    </form>
+</body>
+</html>
