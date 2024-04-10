@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+
+    <script>
+        // Fonction pour vérifier les messages automatiques
+        function checkForAutoMessage() {
+            fetch('/get_messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messages = data.messages;
+                    const autoMessage = messages.find(message => message.content === "Premier arrivé (devineur).");
+                    if (autoMessage) {
+                        // Si un message automatique existe déjà, cela signifie que nous sommes le deuxième ordinateur
+                        // Enregistrer dans la session que nous sommes le "2"
+                        fetch('/save_ordre_arrivee', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'pos=2'
+                        });
+                        showPopup('{{ role }}');
+                    } else {
+                        // Si aucun message automatique, cela signifie que nous sommes le premier ordinateur
+                        // Enregistrer dans la session que nous sommes le "1" et envoyer notre propre message automatique
+                        fetch('/save_ordre_arrivee', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'pos=1'
+                        }).then(sendAutomaticMessage);
+                        showPopup('{{ role }}');
+                    }
+                });
+        }
+    
+        // Fonction pour envoyer un message automatique
+        function sendAutomaticMessage() {
+            const defaultMessage = "Premier arrivé (devineur)."; // Message par défaut à envoyer automatiquement
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `message=${encodeURIComponent(defaultMessage)}`
+            });
+        }
+
+        // Fonction pour afficher la popup
+        function showPopup(role) {
+            alert("Vous êtes le " + role);
+        }
+    
+        // Dès que la page est chargée
+        window.addEventListener('load', checkForAutoMessage);
+    </script>
+    
+
+</head>
+<body>
+    <h1>Chat</h1>
+    <h2>Vous êtes en chat avec {{ contact_username }}... OU UN ROBOT QUI SAIT ?!</h2>
+    <div id="chat-messages">
+        <!-- Messages -->
+    </div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Tapez votre message">
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        // Fonction pour rafraichir les messages
+        function refreshMessages() {
+            fetch('/get_messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messages = data.messages;
+                    const chatMessages = document.getElementById('chat-messages');
+                    chatMessages.innerHTML = ''; // Effacer
+                    messages.forEach(message => {
+                        const messageElement = document.createElement('div');
+                        messageElement.textContent = `${message.author}: ${message.content}`;
+                        chatMessages.appendChild(messageElement);
+                    });
+                });
+        }
+
+        // Toutes les secondes
+        setInterval(refreshMessages, 1000);
+
+        // Envoi de messages
+        document.getElementById('message-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
+            if (message.trim() !== '') {
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `message=${encodeURIComponent(message)}`
+                }).then(() => {
+                    messageInput.value = ''; // Effacer l'input après envoi
+                });
+            }
+        });
+    </script>
+</body>
+</html>
