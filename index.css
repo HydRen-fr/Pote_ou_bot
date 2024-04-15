@@ -1,0 +1,56 @@
+/* Style pour le conteneur des messages /
+
+#messages {
+margin: 0 auto;
+width: 60%;
+text-align: left;
+min-height: 300px;
+max-height: 300px;
+border: 1px solid #ccc;
+border-radius: 25px;
+padding: 10px;
+background-color: #f9f9f9;
+overflow-y: auto; / Pour activer le défilement vertical si nécessaire */
+}
+
+/\ *Style pour chaque message* /
+#messages p {
+margin: 5px 0;
+}
+
+/\ *Style pour le formulaire d'envoi de message* /
+#messageForm {
+margin-top: 20px;
+}
+
+/\ *Style pour les champs de formulaire* /
+#messageForm input[type="text"],
+#messageForm button {
+padding: 10px;
+font-size: 14px;
+border: 1px solid #000fff;
+border-radius: 10px;
+margin-right: 10px;
+}
+
+#messageForm input[id="username"]{
+width: 5000px;
+height: 500px;
+
+}
+
+/\ *Style pour le bouton d'envoi* /
+#sendBtn {
+background-color: #000fff;
+color: #fff;
+border: none;
+cursor: pointer;
+width: 50px;
+height: 30px;
+border-radius: 25px;
+}
+
+/\ *Style pour les boutons lorsqu'ils sont survolés* /
+#sendBtn:hover {
+background-color: #0056b3;
+}
