@@ -27,10 +27,3 @@ def query_LLM(prompt: str, new_conversation: bool = False):
         chatbot.change_conversation(conversation_id)
 
         return chatbot.chat(prompt)['text']
-
-rep1 = query_LLM('''On va jouer à un jeu. Tu dois faire comme si on était dans une discussion SMS et que on écrivait mal. 
-                 Tu as un vocabulaire très peu développé. Enlève les apostrophes, les points de fin de phrase et les accents...''', True)
-print(rep1)
-
-rep2 = query_LLM('''Tu as passé une bonne journée ?''', False)
-print(rep2)
