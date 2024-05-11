@@ -29,6 +29,8 @@ def query_LLM(prompt: str, new_conversation: bool = False):
 
         return chatbot.chat(prompt)['text']
 
+# Parfois besoin de relancer deux fois pour que ça marche
+
 
 '''
 
