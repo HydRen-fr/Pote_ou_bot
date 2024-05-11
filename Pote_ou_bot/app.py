@@ -106,7 +106,7 @@ def get_len_messages():
     if messages:
         return {'len': len(messages)}
     else:
-        return 0
+        return {'len': 0}
     
 def get_last_message():
     if messages:
