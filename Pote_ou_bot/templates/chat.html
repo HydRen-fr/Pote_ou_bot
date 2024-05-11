@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link href="static/css/chat.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+
+    <style>
+        #countdown {
+            display: none; /* Masquer initialement le compte à rebours */
+        }
+    </style>
+
+    <script>
+        let role;
+        let countdownInterval;
+        let countdownValue = 21;
+        let isBlocked = true;
+        let messageFlowInProgress = false;
+        let firstBotMessage = true;
+
+        function initializeChat() {
+            // Fonction pour vérifier si l'utilisateur actuel est le devineur
+            function isDevineur() {
+                return role === 'devineur';
+            }
+
+            // Fonction pour vérifier si l'utilisateur actuel est le pote
+            function isPote() {
+                return role === 'pote';
+            }
+
+            // Fonction pour vérifier si l'utilisateur actuel est le bot
+            function isBot() {
+                return role === 'bot';
+            }
+
+            // Fonction pour actualiser les messages affichés dans le chat
+            function refreshMessages() {
+                fetch('/get_messages')
+                    .then(response => response.json())
+                    .then(data => {
+                        const messages = data.messages;
+                        const chatMessages = document.getElementById('chat-messages');
+                        chatMessages.innerHTML = ''; // Effacer les messages précédents
+
+                        messages.forEach(message => {
+                            const messageElement = document.createElement('div');
+                            messageElement.textContent = `${message.author}: ${message.content}`;
+                            chatMessages.appendChild(messageElement);
+                        });
+                    });
+            }
+
+            // Fonction pour envoyer un message
+            function sendMessage(message) {
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `message=${encodeURIComponent(message)}`
+                });
+            }
+
+            // Fonction pour envoyer un message via l'API du bot
+            function sendBotMessage() {
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'message=LE_MESSAGE_DU_BOT'
+                });
+            }
+
+            // Fonction pour envoyer un message système à la fin
+            function sendSystemMessage() {
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'message=LE_MESSAGE_DU_SYSTEME'
+                });
+            }
+
+            // Fonction pour envoyer un message qui révèle notre rôle
+            function sendRoleMessage() {
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'message=REVELATION_ROLE'
+                });
+            }
+
+            // Fonction pour bloquer l'interface
+            function blockInterface() {
+                document.getElementById('message-input').disabled = true;
+                document.getElementById('message-form').querySelector('button[type="submit"]').disabled = true;
+                isBlocked = true; // Mettre à jour l'état de blocage
+            }
+
+            // Fonction pour débloquer l'interface
+            function unblockInterface() {
+                if (isBlocked) {
+                    document.getElementById('message-input').disabled = false;
+                    document.getElementById('message-form').querySelector('button[type="submit"]').disabled = false;
+                    isBlocked = false; // Mettre à jour l'état de blocage
+                }
+            }
+
+
+
+
+            function botMessageFlow() {
+                if (messageFlowInProgress) {
+                    return;
+                }
+
+                messageFlowInProgress = true;
+
+                // Comme l'IA a un petit délai de réponse on adapte
+                // Particulièrement au premier message
+                let botCountdownValue = firstBotMessage ? (countdownValue - 16) : (countdownValue - 9);
+
+                countdownInterval = setInterval(function() {
+                    botCountdownValue--;
+
+                    document.getElementById('countdown').textContent = botCountdownValue;
+
+                    if (botCountdownValue === 0) {
+                        clearInterval(countdownInterval);
+                        sendBotMessage();
+                    }
+                }, 1000);
+
+                document.getElementById('countdown').style.display = 'block';
+                messageFlowInProgress = false;
+
+                firstBotMessage = false;
+            }
+
+
+
+            function poteMessageFlow() {
+                if (messageFlowInProgress) {
+                    return;
+                }
+
+                messageFlowInProgress = true;
+
+                countdownInterval = setInterval(function() {
+                    countdownValue--;
+
+                    document.getElementById('countdown').textContent = countdownValue;
+                }, 1000);
+
+                document.getElementById('countdown').style.display = 'block';
+
+                const messageInput = document.getElementById('message-input');
+
+                document.getElementById('message-form').addEventListener('submit', function(event) {
+                    event.preventDefault(); // Éviter que la page se relance
+
+                    const messageContent = messageInput.value.trim();
+
+                    // Utilisation de setTimeout pour envoyer le message
+                    setTimeout(function() {
+                        clearInterval(countdownInterval);
+                        sendMessage(messageContent);
+                        document.getElementById('countdown').textContent = 0;
+                        messageFlowInProgress = false;
+                    }, countdownValue * 1000); // Multiplication par 1000 pour convertir les secondes en millisecondes
+
+                    blockInterface();
+                    messageInput.value = '';
+
+                });
+            }
+
+
+
+
+            function devineurMessageFlow() {
+                const messageInput = document.getElementById('message-input');
+
+                document.getElementById('message-form').addEventListener('submit', function(event) {
+                    event.preventDefault(); // Eviter que la page se relance
+
+                    const messageContent = messageInput.value.trim();
+
+                    sendMessage(messageContent);
+
+                    blockInterface();
+
+                    messageInput.value = '';
+                });
+            }
+
+
+
+
+
+        function dealWithTheFlow() {
+            fetch('/check_new_messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const newMessagesReceived = data.newMessagesReceived;
+                if (newMessagesReceived) {
+                    fetch('/get_len_messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const longueur = data.len; // Récupère la longueur de la liste de messages
+                        countdownValue = 21; // Remet le compte à rebours à 21 lors de la réception d'un nouveau message
+                        // Ne pas oublier le message automatique
+                        // + Nombre pair pour allonger la discussion
+                        if (isDevineur() && longueur < 10) {
+                            unblockInterface();
+                            devineurMessageFlow();
+                        }
+
+                        if (isPote() && longueur <= 10) {
+                            unblockInterface();
+                            poteMessageFlow();
+                        }
+
+                        if (isBot() && longueur <= 10) {
+                            botMessageFlow();
+                        }
+                            
+
+                        if (isDevineur() && longueur === 11) {
+                            sendSystemMessage();
+                            unblockInterface();
+                            devineurMessageFlow();
+                        }
+
+                        if ((isPote() || isBot()) && longueur >= 13) {
+                            sendRoleMessage();
+                            blockInterface();
+                        }
+                    });
+                }
+            });
+        }
+
+
+            // Initialiser l'actualisation des messages
+            refreshMessages();
+            setInterval(refreshMessages, 2000);
+
+            // Initialiser le checking
+            dealWithTheFlow();
+            setInterval(dealWithTheFlow, 3000);
+
+            // Démarrer le flux de messages
+            if (isBot() || isPote()) {
+                blockInterface();
+            }
+            if (isDevineur()) {
+                devineurMessageFlow();
+                hideAllResponses(); // Masquer le compte à rebours pour le devineur
+            }
+        }
+
+        function hideAllResponses() {
+            var divs = document.getElementsByTagName('div');
+            for (var i = divs.length; i--;) {
+                var div = divs[i];
+                if (div.id === 'countdown') {
+                    div.style.display = 'none';
+                }
+            }
+        }
+
+        // Fonction qui permet l'attribution des rôles
+        // Le premier à arriver envoie un message automatiquement ---> devineur
+        // Le deuxième repère ce message et sait alors que il est le deuxième à arriver ---> pote/bot
+        function checkForAutoMessage() {
+            fetch('/get_messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messages = data.messages;
+                    const autoMessage = messages.find(message => message.content === "Premier arrivé (devineur).");
+                    if (autoMessage) {
+                        fetch('/save_ordre_arrivee', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'pos=2'
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    response.text().then(newRole => {
+                                        role = newRole;
+                                        showPopup(role);
+                                        initializeChat();
+                                    });
+                                }
+                            });
+                    } else {
+                        fetch('/save_ordre_arrivee', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'pos=1'
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    response.text().then(newRole => {
+                                        role = newRole;
+                                        sendAutomaticMessage();
+                                        showPopup(role);
+                                        initializeChat();
+                                    });
+                                }
+                            });
+                    }
+                });
+        }
+
+        function showPopup(role) {
+            alert("Vous êtes le " + role + ".");
+        }
+
+        function sendAutomaticMessage() {
+            const defaultMessage = "Premier arrivé (devineur).";
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `message=${encodeURIComponent(defaultMessage)}`
+            });
+        }
+
+        // Événement lorsque la page est chargée
+        window.addEventListener('load', checkForAutoMessage);
+    </script>
+</head>
+
+<body>
+    <h2>Vous êtes en chat avec {{ contact_username }}... OU UN ROBOT QUI SAIT ?!</h2>
+    <div id="chat-messages">
+        <!-- Messages -->
+    </div>
+    <form id="message-form">
+        <div id="countdown">21</div> <!-- Afficher le compte à rebours -->
+        <input type="text" id="message-input" placeholder="Tapez votre message">
+        <button type="submit">Envoyer</button>
+    </form>
+</body>
+
+</html>
