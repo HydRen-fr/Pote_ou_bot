@@ -34,6 +34,7 @@ def index():
     global messages
     # Réinitialisation
     session.clear()
+    messages = []
 
     return render_template('index.html')
 
