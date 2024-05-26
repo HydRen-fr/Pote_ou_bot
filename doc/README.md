@@ -40,6 +40,70 @@ une IA grâce à une API
 
 Toutes ces actions prévues pour l'ordinateur ont bien été réalisées.
 
+---
+
+La fonction la plus importante pour saisir la logique du code est dealWithTheFlow :
+
+```
+
+        function dealWithTheFlow() {
+            fetch('/check_new_messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const newMessagesReceived = data.newMessagesReceived;
+                if (newMessagesReceived) {
+                    fetch('/get_len_messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const longueur = data.len; // Récupère la longueur de la liste de messages
+                        countdownValue = 21; // Remet le compte à rebours à 21 lors de la réception d'un nouveau message
+                        // Ne pas oublier le message automatique
+                        // + Nombre pair pour allonger la discussion
+                        if (isDevineur() && longueur < 10) {
+                            unblockInterface();
+                            devineurMessageFlow();
+                        }
+
+                        if (isPote() && longueur <= 10) {
+                            unblockInterface();
+                            poteMessageFlow();
+                        }
+
+                        if (isBot() && longueur <= 10) {
+                            botMessageFlow();
+                        }
+
+
+                        if (isDevineur() && longueur === 11) {
+                            sendSystemMessage();
+                            unblockInterface();
+                            devineurMessageFlow();
+                        }
+
+                        if ((isPote() || isBot()) && longueur >= 13) {
+                            sendRoleMessage();
+                            blockInterface();
+                        }
+                    });
+                }
+            });
+        }
+
+```
+
+Cette fonction permet de gérer beaucoup de choses : l'envoi de messages tour à tour, seulement en cas de réception de nouveaux messages, en fonction des rôles de chacun et du progrès de la discussion (plus ou moins longue).
+
+
 
 
 
