@@ -1,14 +1,14 @@
 ![Un robot et un humain](/doc/un_bot_et_un_pote.jpg)
 
-**Pote ou bot** est un site web qui permet de réaliser le test de turing en ligne entre amis. Le projet a été pensé pour être ludique avant tout. L'idée est de s'amuser
-à tromper son ami en lui faisant croire que on est un robot.
+**Pote ou bot** is a website that lets friends take the Turing test online. The project has been designed above all to be fun. The idea is to have fun
+to fool your friend into thinking you're a robot.
 
-## 🔥 Fonctionnalités
+## 🔥 Features
 
-- Interface intuitive
-- Possibilité de chatter à deux facilement depuis n'importe où
-- API huggingchat
+- Intuitive interface
+- Easy two-way chatting from anywhere
+- huggingchat API
 
-## Licence
+## License
 
-Pote ou bot est distribué sous la **licence libre GPL v3+**. Veuillez consulter le fichier LICENSE pour plus d'informations.
+Pote ou bot is distributed under the **free license GPL v3+**. Please see the LICENSE file for more information.
